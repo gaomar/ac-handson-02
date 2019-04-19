@@ -1,0 +1,294 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Amazon Connectハンズオン 02</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="dist"
+                  title="Amazon Connectハンズオン 02"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Lambda関数を作ろう！" duration="0">
+        <h2 is-upgraded>1-1. Lambda関数を作成する</h2>
+<p>サービス部分をクリックしてメニューを展開します。そこの検索窓に「Lambda」と入力します。</p>
+<p class="image-container"><img alt="s200" src="img/6e488c53b86ccfc0.png"></p>
+<p>［関数の作成］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s201" src="img/ce6fee2e5ad4e00c.png"></p>
+<p>各項目を埋めて、［関数の作成］ボタンをクリックします。</p>
+<table>
+<tr></tr>
+<tr><td colspan="1" rowspan="1"><p>①関数名</p>
+</td><td colspan="1" rowspan="1"><p>AmazonConnect-BMI</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>②実行ロール</p>
+</td><td colspan="1" rowspan="1"><p>AWSポリシーテンプレートから新しいロールを作成</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>③ロール名</p>
+</td><td colspan="1" rowspan="1"><p>AmazonConnect-Role</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>④ポリシーテンプレート</p>
+</td><td colspan="1" rowspan="1"><p>シンプルなマイクロサービスのアクセス権限</p>
+</td></tr>
+</table>
+<p class="image-container"><img alt="s202" src="img/7a1463aa6d2339aa.png"></p>
+<p>index.jsを全て下記に書き換えます。書き換えたら右上の［保存］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s203" src="img/327e624b161b9e65.png"></p>
+<pre><code>exports.handler = async (event) =&gt; {
+    // 身長と体重を取得する
+    const heightVal = event.Details.ContactData.Attributes.HeightVal;
+    const weightVal = event.Details.ContactData.Attributes.WeightVal;
+    
+    // BMI計算
+    const bmiVal = (parseFloat(weightVal) / (parseFloat(heightVal)/100 * parseFloat(heightVal)/100)).toFixed(1);
+
+    // 標準体重
+    const stdWeight = (22 * (parseFloat(heightVal)/100 * parseFloat(heightVal)/100)).toFixed(1);
+
+    var speechText = `あなたのBMIは${bmiVal}です。標準体重は${stdWeight}kgです。`;
+
+    return {&#34;BMI&#34;: speechText};
+};
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="LambdaをAmazon Connectに適用しよう！" duration="0">
+        <h2 is-upgraded>2-1. LambdaをAmazon Connectに適用する</h2>
+<p>サービスを展開して、検索窓に「Amazon Connect」と入力してクリックします。</p>
+<p class="image-container"><img alt="s204" src="img/1fbeb4a533362c76.png"></p>
+<p>左側メニューから「問い合わせフロー」をクリックします。</p>
+<p class="image-container"><img alt="s205" src="img/9ff64dbd744979c7.png"></p>
+<p>AWS Lambdaの項目までスクロールして、関数のプルダウンメニューから「AmazonConnect-BMI」の関数を選択します。<br>選択したら、［追加］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s206" src="img/f6889032b164d3e9.png"></p>
+<p>左側メニューから「概要」をクリックします。［管理者としてログイン］をクリックします。</p>
+<p class="image-container"><img alt="s207" src="img/b32f3e63a3774c47.png"></p>
+<h2 is-upgraded>2-2.問い合わせフローの作成</h2>
+<p>［問い合わせフローの作成］をクリックします。</p>
+<p class="image-container"><img alt="s208" src="img/a2f8135bdb84e534.png"></p>
+<p>名前を「BMIフロー」と入力します。</p>
+<p class="image-container"><img alt="s209" src="img/82a7c93bf551c77c.png"></p>
+<p>設定カテゴリにある「音声の設定」ブロックをドラッグアンドドロップして、ドロップしたブロックをクリックします。</p>
+<p class="image-container"><img alt="s210" src="img/e2bdb3d3d43529bc.png"></p>
+<p>言語は「日本語」でお好きな音声を選択してください。</p>
+<p class="image-container"><img alt="s211" src="img/bf8c94c0a4182d49.png"></p>
+<p>エントリポイントと音声の設定ブロックを繋げます。</p>
+<p class="image-container"><img alt="s212" src="img/a80d0310427cce38.png"></p>
+<p>操作カテゴリの「顧客の入力を保存する」をドラッグアンドドロップしてクリックします。</p>
+<p class="image-container"><img alt="s213" src="img/c5ab1f4470097875.png"></p>
+<p>「テキストの読み上げ」を選択し、発話する内容を入力します。身長の桁数は3桁なので、最大桁数は3桁に設定します。</p>
+<p class="image-container"><img alt="s214" src="img/d8b78f7250c611fa.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s215" src="img/619bb39ba2e70302.png"></p>
+<p>設定カテゴリにある「問い合わせ属性の設定」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s216" src="img/18bc1c846cb801db.png"></p>
+<p>「属性を使用する」を選択し、項目を埋めていきます。<br>宛先キーは大文字小文字に気をつけてください。</p>
+<table>
+<tr></tr>
+<tr><td colspan="1" rowspan="1"><p>宛先キー</p>
+</td><td colspan="1" rowspan="1"><p>HeightVal　※大文字小文字は一致させてください</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>タイプ</p>
+</td><td colspan="1" rowspan="1"><p>システム</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>属性</p>
+</td><td colspan="1" rowspan="1"><p>保存済みのお客様の入力</p>
+</td></tr>
+</table>
+<p class="image-container"><img alt="s217" src="img/ebed64423139008d.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s218" src="img/c284e61121a3e318.png"></p>
+<p>操作カテゴリの「顧客の入力を保存する」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s219" src="img/472218fa6790d074.png"></p>
+<p>「テキストの読み上げ機能」を選択し、発話する内容を入力します。体重の最大桁数は3桁にします。</p>
+<p class="image-container"><img alt="s220" src="img/be52a3a85d9a048e.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s221" src="img/591dc0af2c3ea4ab.png"></p>
+<p>設定カテゴリにある「問い合わせ属性の設定」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s222" src="img/3ab4d1371c2a6252.png"></p>
+<p>「属性を使用する」を選択し、項目を埋めていきます。<br>宛先キーは大文字小文字に気をつけてください。</p>
+<table>
+<tr></tr>
+<tr><td colspan="1" rowspan="1"><p>宛先キー</p>
+</td><td colspan="1" rowspan="1"><p>WeightVal　※大文字小文字は一致させてください</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>タイプ</p>
+</td><td colspan="1" rowspan="1"><p>システム</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>属性</p>
+</td><td colspan="1" rowspan="1"><p>保存済みのお客様の入力</p>
+</td></tr>
+</table>
+<p class="image-container"><img alt="s223" src="img/e9098c54c3ea432e.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s224" src="img/cf55cefa09b142ec.png"></p>
+<p>統合カテゴリにある「AWS Lambda 関数を呼び出す」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s225" src="img/a067ef772c33f944.png"></p>
+<p>関数は先程作成した「AmazonConnect-BMI」を選択します。</p>
+<p class="image-container"><img alt="s226" src="img/83736cc7780571f4.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s227" src="img/fe8997b62e5a767c.png"></p>
+<p>操作カテゴリの「プロンプトの再生」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s228" src="img/6b1edcfff950730a.png"></p>
+<p>「テキストの読み上げ機能」を選択し、下記コードを入力します。<br>Lambdaから帰ってくるbodyは「$.External」に格納されます。</p>
+<pre><code>$.External.BMI
+</code></pre>
+<p class="image-container"><img alt="s229" src="img/148c64b80770eead.png"></p>
+<p>ブロックを繋げます。</p>
+<p class="image-container"><img alt="s230" src="img/76e114a6c11f6736.png"></p>
+<p>終了カテゴリーの「切断/ハングアップ」をドラッグアンドドロップします。</p>
+<p class="image-container"><img alt="s231" src="img/9c17221725d8a1d5.png"></p>
+<p>未接続のノードを全て「切断/ハングアップ」ブロックに繋げます。</p>
+<p class="image-container"><img alt="s232" src="img/f50bad0f802fcba0.png"></p>
+<p>右上の［保存して発行］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s233" src="img/1ceede6e78d89202.png"></p>
+<p>左側メニューのルーティングから［電話番号］をクリックします。</p>
+<p class="image-container"><img alt="s234" src="img/491ce1907775b2b9.png"></p>
+<p>電話番号をクリックします。</p>
+<p class="image-container"><img alt="s235" src="img/e782d938cca6aee7.png"></p>
+<p>問い合わせフローを作成した「BMIフロー」を選択します。</p>
+<p class="image-container"><img alt="s236" src="img/dd11db29e90262da.png"></p>
+<p>これで電話番号かけて、身長と体重の値を入力すればBMI値が返ってきます。</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="DynamoDBと連携しよう！" duration="0">
+        <h2 is-upgraded>3-1. テーブルを作成する</h2>
+<p>サービスから「DynamoDB」を検索してクリックします。</p>
+<p class="image-container"><img alt="s237" src="img/3ed4ce1ee0b8ac97.png"></p>
+<p>［テーブルの作成］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s238" src="img/1921dd9ab1acacb4.png"></p>
+<p>テーブル名とプライマリキーを入力して［作成］ボタンをクリックします。</p>
+<table>
+<tr></tr>
+<tr><td colspan="1" rowspan="1"><p>テーブル名</p>
+</td><td colspan="1" rowspan="1"><p>PhoneHistory</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>プライマリキー</p>
+</td><td colspan="1" rowspan="1"><p>Timestamp</p>
+</td></tr>
+</table>
+<p class="image-container"><img alt="s239" src="img/3fb7ae23de61d516.png"></p>
+<p>Lambda画面を開いて、新しいファイルを新規作成します。［＋］ボタンをクリックし、［New File］をクリックします。</p>
+<p class="image-container"><img alt="s240" src="img/a8b91e585e5ff868.png"></p>
+<p>下記コードを入力します。</p>
+<pre><code>&#39;use strict&#39;;
+const AWS = require(&#39;aws-sdk&#39;);
+const DynamoDB = new AWS.DynamoDB.DocumentClient({
+  region: &#34;ap-northeast-1&#34;
+});
+
+// 日付フォーマット変更
+module.exports.dateToStr12HPad0 = function dateToStr12HPad0(date, format) {
+    if (!format) {
+        format = &#39;YYYY/MM/DD hh:mm:dd AP&#39;;
+    }
+    format = format.replace(/YYYY/g, date.getFullYear());
+    format = format.replace(/MM/g, (&#39;0&#39; + (date.getMonth() + 1)).slice(-2));
+    format = format.replace(/DD/g, (&#39;0&#39; + date.getDate()).slice(-2));
+    format = format.replace(/hh/g, (&#39;0&#39; + date.getHours()).slice(-2));
+    format = format.replace(/mm/g, (&#39;0&#39; + date.getMinutes()).slice(-2));
+    format = format.replace(/ss/g, (&#39;0&#39; + date.getSeconds()).slice(-2));
+    format = format.replace(/dd/g, (&#39;0&#39; + date.getMilliseconds()).slice(-3));
+    return format;
+};
+
+// 着信履歴を残す
+module.exports.putPhoneNo = async function putPhoneNo(phoneNo) {
+    // テーブル名取得
+    const tableName = process.env.TABLE_NAME;
+    
+    var timezoneoffset = -9;     // UTC-表示したいタイムゾーン(単位:hour)。JSTなら-9
+    var today = new Date(Date.now() - (timezoneoffset * 60 - new Date().getTimezoneOffset()) * 60000);
+
+    const timestamp = this.dateToStr12HPad0(today, &#39;YYYY/MM/DD hh:mm:ss:dd&#39;);
+
+    // DynamoDBにデータを保存する
+    await DynamoDB.put( {
+        &#34;TableName&#34;: tableName,
+        &#34;Item&#34;: {
+          &#34;Timestamp&#34;: timestamp,
+          &#34;phoneNo&#34;: phoneNo
+        }
+    }, function( err, data ) {
+        console.log(err);
+        
+    }).promise();
+};
+</code></pre>
+<p>キーボードのコントロール+Sキーでファイルを保存します。ファイル名は「util.js」にして［Save］ボタンをクリックします。</p>
+<p class="image-container"><img alt="s241" src="img/9067d742c1493e57.png"></p>
+<p>環境変数を設定します。</p>
+<table>
+<tr></tr>
+<tr><td colspan="1" rowspan="1"><p>キー</p>
+</td><td colspan="1" rowspan="1"><p>TABLE_NAME</p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>値</p>
+</td><td colspan="1" rowspan="1"><p>PhoneHistory</p>
+</td></tr>
+</table>
+<p class="image-container"><img alt="s242" src="img/f51f60235770d64.png"></p>
+<p>index.jsのソースを編集します。</p>
+<pre><code>// utilファイルを読み取り
+const Util = require(&#39;util.js&#39;);
+
+exports.handler = async (event) =&gt; {
+    
+    // 発信者番号
+    const phoneNumber = event.Details.ContactData.CustomerEndpoint.Address;
+
+    // 発信者番号をDynamoDBに記録
+    await Util.putPhoneNo(phoneNumber);
+
+    // 身長と体重を取得する
+    const heightVal = event.Details.ContactData.Attributes.HeightVal;
+    const weightVal = event.Details.ContactData.Attributes.WeightVal;
+    
+    // BMI計算
+    const bmiVal = (parseFloat(weightVal) / (parseFloat(heightVal)/100 * parseFloat(heightVal)/100)).toFixed(1);
+
+    // 標準体重
+    const stdWeight = (22 * (parseFloat(heightVal)/100 * parseFloat(heightVal)/100)).toFixed(1);
+
+    var speechText = `あなたのBMIは${bmiVal}です。標準体重は${stdWeight}kgです。`;
+
+    return {&#34;BMI&#34;: speechText};
+};
+</code></pre>
+<p class="image-container"><img alt="s243" src="img/af5f10a4b874b1d9.png"></p>
+<p>これでAmazon Connectの電話にかけてBMIの返答が返ってきたら、DynamoDBに発信者の電話番号が記録されます。</p>
+<p class="image-container"><img alt="s244" src="img/c378c64d180ffd23.png"></p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+
+</body>
+</html>
